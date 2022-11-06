@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -105,6 +106,8 @@ public class RunState : State
         {
             cptList.RemoveAt(0);
             moveStairs.RemoveAt(0);
+
+            CharacterStats.Instance.ClimbCountUpdate();
             CharacterStats.Instance.Distance();
         }
     }

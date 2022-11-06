@@ -5,31 +5,32 @@ public class CharacterStats : MonoSingleton<CharacterStats>
 {
     public static event Action<float> PositionY;
     public static event Action<float> CurrentCash;
+    public static event Action ClimbCount;
 
     [SerializeField] GameObject diedParticles;
     [SerializeField] ParticleSystem sparkParticles;
     [SerializeField] Material mat;
     [SerializeField] private float _cash;
-    public float Cash 
-    { 
+    public float Cash
+    {
         get { return _cash; }
-        set 
-        { 
+        set
+        {
             _cash = value;
-            PlayerPrefs.SetFloat("PlayerCash" , _cash);
+            PlayerPrefs.SetFloat("PlayerCash", _cash);
             GetCash();
         }
     }
 
     public float currentStamina;
 
-    public float Stamina 
+    public float Stamina
     {
         get { return stamina.currentLevelValue; }
     }
     public float Income
     {
-        get{ return income.currentLevelValue; }
+        get { return income.currentLevelValue; }
     }
     public float Speed
     {
@@ -39,13 +40,13 @@ public class CharacterStats : MonoSingleton<CharacterStats>
     public SPRInfo stamina;
     public SPRInfo income;
     public SPRInfo speed;
-    
+
     void Start()
     {
         Cash = PlayerPrefs.GetFloat("PlayerCash");
         currentStamina = Stamina;
         sparkParticles.Stop();
-        mat.color = new Color(1,1,1);
+        mat.color = new Color(1, 1, 1);
     }
 
     public void Distance()
@@ -53,7 +54,7 @@ public class CharacterStats : MonoSingleton<CharacterStats>
         PositionY?.Invoke(transform.position.y);
         currentStamina -= 0.2f;
         if (currentStamina <= 0) GameOver();
-        ColorUpdate();        
+        ColorUpdate();
     }
 
     public void GetCash()
@@ -64,7 +65,7 @@ public class CharacterStats : MonoSingleton<CharacterStats>
     void GameOver()
     {
         gameObject.SetActive(false);
-        GameObject go = Instantiate(diedParticles, transform.position , Quaternion.identity);
+        GameObject go = Instantiate(diedParticles, transform.position, Quaternion.identity);
         Destroy(go, .75f);
 
         UIController.Instance.canRun = false;
@@ -82,7 +83,7 @@ public class CharacterStats : MonoSingleton<CharacterStats>
         else
         {
             sparkParticles.Stop();
-            mat.color = new Color(1,1,1);
+            mat.color = new Color(1, 1, 1);
         }
     }
 
@@ -93,5 +94,10 @@ public class CharacterStats : MonoSingleton<CharacterStats>
             currentStamina += 0.5f * Time.deltaTime;
             ColorUpdate();
         }
+    }
+
+    public void ClimbCountUpdate()
+    {
+        ClimbCount?.Invoke();
     }
 }

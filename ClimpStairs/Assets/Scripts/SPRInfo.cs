@@ -21,6 +21,7 @@ public class SPRInfo : MonoBehaviour
         CharacterStats.CurrentCash += GetCash;
 
         currentLevel = PlayerPrefs.GetInt("CurrentLevel"+ name);
+        currentLevel = currentLevel <= 0 ? 1 : currentLevel;
         //levelUpButton.onClick.RemoveAllListeners();
         //levelUpButton.onClick.AddListener(() => LevelUpButton());
 
