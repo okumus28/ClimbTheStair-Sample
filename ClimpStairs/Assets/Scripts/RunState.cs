@@ -11,14 +11,13 @@ public class RunState : State
     [SerializeField] float posOffset;
     [SerializeField] float rotOffset;
 
-    private Animator characterAnimator;
-
     [SerializeField]private List<Stair> moveStairs;
     [SerializeField]private List<CashPopUpText> cptList;
 
+    private Animator characterAnimator;
     private Transform character;
     private Transform _camera;
-    [SerializeField] Transform disatancePanel;
+    [SerializeField] Transform distancePanel;
 
     Vector3 newRot;
     Vector3 newPos;
@@ -28,15 +27,17 @@ public class RunState : State
         _camera = Camera.main.transform;
         character = GameObject.FindObjectOfType<StateMachine>().transform;
         characterAnimator = character.GetComponent<Animator>();
-
-        //canvas = GameObject.FindGameObjectWithTag("canvas").transform;
     }
     public override State RunCurrentState()
     {
+        if (!UIController.Instance.canRun)
+        {
+            return idleState;
+        }
+
         if (Input.GetMouseButton(0) && moveStairs.Count < 2 && cptList.Count < 2)
         {
             GetStairs();
-            //GetStairs();
         }
 
         if (moveStairs.Count > 0)
@@ -53,42 +54,55 @@ public class RunState : State
 
     void GetStairs()
     {
-        for (int i = 0; i < 2; i++)
-        {
-            _camera.transform.position = new Vector3(0, newPos.y + 2.25f, -4);
-            disatancePanel.position = newPos + new Vector3(0, 0.2f, 0);
+        _camera.transform.position = new Vector3(0, newPos.y + 2.25f, -4);
+        distancePanel.position = newPos + new Vector3(0, 0.2f, 0);
 
-            Stair s = StairPooling.Instance.SpawnList(newPos, newRot);
-            CashPopUpText cpt = CashPopUpTextPooling.Instance.SpawnList();
+        SpawnCashText(SpawnStair());
 
-            s.transform.localScale = new Vector3(1, 0, 1);
+        newRot += new Vector3(0, rotOffset, 0);
+        newPos += new Vector3(0, posOffset, 0);
+    }
 
-            cpt.GetComponent<RectTransform>().localScale = Vector3.one;
-            cpt.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -350 + i * 50);
+    IEnumerator CPTDelay(CashPopUpText cpt)
+    {
+        yield return new WaitForSeconds(0.1f);
+        CharacterStats.Instance.Cash += (int)CharacterStats.Instance.Income;
+        cpt.GetComponent<RectTransform>().localScale = Vector3.one;
+    }
 
-            moveStairs.Add(s);
-            cptList.Add(cpt);
+    Stair SpawnStair()
+    {
+        Stair s = StairPooling.Instance.SpawnList(newPos, newRot);
+        s.transform.localScale = new Vector3(1, 0.1f, 0.1f);
+        moveStairs.Add(s);
 
-            newRot += new Vector3(0, rotOffset, 0);
-            newPos += new Vector3(0, posOffset, 0);
-        }
+        return s;
+    }
+
+    void SpawnCashText(Stair s)
+    {
+        CashPopUpText cpt = CashPopUpTextPooling.Instance.SpawnList();
+        cpt.target = s.transform;
+        float incomeCash = CharacterStats.Instance.Income;
+        cpt.GetComponent<TextMeshProUGUI>().text = "$" + incomeCash.ToString();
+        CharacterStats.Instance.Cash += incomeCash;
+        StartCoroutine(CPTDelay(cpt));
+        cptList.Add(cpt);
     }
 
     void MoveToNextStair()
     {
+        speed = CharacterStats.Instance.Speed;
+        characterAnimator.SetFloat("RunAmimSpeed" , speed /2);
         characterAnimator.SetBool("Running", true);
+
         character.localPosition = Vector3.MoveTowards(character.localPosition,
             moveStairs[0].transform.GetChild(1).position + new Vector3(0, .03f, 0),
             speed / 5 * Time.deltaTime);
         character.eulerAngles = moveStairs[0].transform.eulerAngles;
 
-        //CashPopUpText cpt = CashPopUpTextPooling.Instance.SpawnList();
-        //cpt.GetComponent<RectTransform>().localScale = Vector3.one;
-        //cpt.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -260);
-
         if (character.localPosition.y >= moveStairs[0].transform.GetChild(1).position.y + .0275f)
         {
-
             cptList.RemoveAt(0);
             moveStairs.RemoveAt(0);
             CharacterStats.Instance.Distance();

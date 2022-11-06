@@ -1,13 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class StateMachine : MonoBehaviour
 {
     [SerializeField]State currentState;
 
-    // Update is called once per frame
     void Update()
     {
         RunStateMachine();

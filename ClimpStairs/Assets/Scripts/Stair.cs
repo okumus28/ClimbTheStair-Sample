@@ -1,10 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Stair : MonoBehaviour
 {
     private void Update()
+    {
+        SpawningAnim();
+    }
+
+    void SpawningAnim()
     {
         if (transform.localScale != Vector3.one)
         {

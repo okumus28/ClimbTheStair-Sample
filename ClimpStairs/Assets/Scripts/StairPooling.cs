@@ -5,8 +5,6 @@ public class StairPooling : MonoSingleton<StairPooling>
 {
     public GameObject prefab;
     public int startNum;
-    public int allocateNum;
-    public Stack<Stair> poolStack = new Stack<Stair>();
     public List<Stair> listPool = new List<Stair>();
     public int currentListIndex;
 
@@ -17,7 +15,6 @@ public class StairPooling : MonoSingleton<StairPooling>
 
     public Stair SpawnList()
     {
-        //if (currentListIndex >= startNum) currentListIndex = 0;
         currentListIndex = currentListIndex < startNum ? currentListIndex : 0;
 
         Stair stair = listPool[currentListIndex];
@@ -30,41 +27,12 @@ public class StairPooling : MonoSingleton<StairPooling>
 
     public Stair SpawnList(Vector3 position, Vector3 eulerAngles)
     {
-
         Stair stair = SpawnList();
-        stair.transform.position = position;
-        stair.transform.eulerAngles = eulerAngles;
-
-        return stair;
-    }
-
-    public Stair Spawn()
-    {
-        if (poolStack.Count == 0)
-        {
-            Allocate(allocateNum);
-        }
-        Stair stair = poolStack.Pop();
         stair.gameObject.SetActive(true);
-        return stair;
-    }
-    public Stair Spawn(Vector3 position)
-    {
-        Stair stair = Spawn();
-        stair.transform.position = position;
-        return stair;
-    }
-    public Stair Spawn(Vector3 position, Vector3 eulerAngles)
-    {
-        Stair stair = Spawn();
         stair.transform.position = position;
         stair.transform.eulerAngles = eulerAngles;
-        return stair;
-    }
 
-    public void Recycle(Stair stair)
-    {
-        poolStack.Push(stair);
+        return stair;
     }
     private void Allocate(int number)
     {
@@ -74,9 +42,8 @@ public class StairPooling : MonoSingleton<StairPooling>
             go.name = prefab.name;
             go.transform.parent = this.transform;
             var stair = go.GetComponent<Stair>();
-            poolStack.Push(stair);
             listPool.Add(stair);
-            //stair.gameObject.SetActive(false);
+            stair.gameObject.SetActive(false);
         }
         Debug.Log("Created Stair Pool");
     }
